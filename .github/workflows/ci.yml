@@ -35,7 +35,7 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
 
       - name: Build with Maven
-        run: mvn clean compile -B
+        run: mvn clean package -B -DskipTests
 
   codeql:
     name: CodeQL Security Scan
@@ -66,7 +66,8 @@ jobs:
           maven-version: 3.6.3
 
       - name: Build for CodeQL
-        run: mvn clean compile -B
+        # omod's unpack-dependencies plugin requires the api jar, which only exists after package (not compile)
+        run: mvn clean package -B -DskipTests
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
