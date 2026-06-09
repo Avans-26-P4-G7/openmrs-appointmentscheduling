@@ -23,6 +23,11 @@ jobs:
           java-version: '8'
           distribution: 'temurin'
 
+      - name: Set up Maven 3.6.3
+        uses: stCarolas/setup-maven@v5
+        with:
+          maven-version: 3.6.3
+
       - name: Cache Maven packages
         uses: actions/cache@v4
         with:
@@ -54,6 +59,11 @@ jobs:
         with:
           java-version: '8'
           distribution: 'temurin'
+
+      - name: Set up Maven 3.6.3
+        uses: stCarolas/setup-maven@v5
+        with:
+          maven-version: 3.6.3
 
       - name: Build for CodeQL
         run: mvn clean compile -B
