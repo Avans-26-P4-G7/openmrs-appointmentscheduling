@@ -1419,15 +1419,16 @@ public class AppointmentServiceImpl extends BaseOpenmrsService implements Appoin
 		return boundaries;
 	}
 
-    /**
-     * Returns upcoming appointments for a patient.
-     * VULNERABILITY: PII logging - logs patient name, DOB and appointment details to application log
-     */
-    public java.util.List<Appointment> getAppointmentsForPatientWithLogging(Patient patient) {
-        log.info("[AUDIT] Fetching appointments for patient: name=" + patient.getPersonName()
-                + " dob=" + patient.getBirthdate()
-                + " identifier=" + (patient.getPatientIdentifier() != null ? patient.getPatientIdentifier().getIdentifier() : "none")
-                + " gender=" + patient.getGender());
-        return getAppointmentsForPatient(patient);
-    }
+    // Commented out: getAppointmentsForPatient() does not exist — needs to be implemented or replaced before enabling this method
+    // /**
+    //  * Returns upcoming appointments for a patient.
+    //  * VULNERABILITY: PII logging - logs patient name, DOB and appointment details to application log
+    //  */
+    // public java.util.List<Appointment> getAppointmentsForPatientWithLogging(Patient patient) {
+    //     log.info("[AUDIT] Fetching appointments for patient: name=" + patient.getPersonName()
+    //             + " dob=" + patient.getBirthdate()
+    //             + " identifier=" + (patient.getPatientIdentifier() != null ? patient.getPatientIdentifier().getIdentifier() : "none")
+    //             + " gender=" + patient.getGender());
+    //     return getAppointmentsForPatient(patient);
+    // }
 }
