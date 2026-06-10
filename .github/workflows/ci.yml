@@ -2,9 +2,9 @@ name: CI Pipeline
 
 on:
   push:
-    branches: [ main, test, production ]
+    branches: [ development, test, production ]
   pull_request:
-    branches: [ main, test, production ]
+    branches: [ development, test, production ]
   schedule:
     - cron: '0 6 * * 1'
 
