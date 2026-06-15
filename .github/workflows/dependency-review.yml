@@ -17,4 +17,4 @@ jobs:
       - name: Dependency Review
         uses: actions/dependency-review-action@v4
         with:
-          fail-on-cvss-score: 7
+          fail-on-severity: high
