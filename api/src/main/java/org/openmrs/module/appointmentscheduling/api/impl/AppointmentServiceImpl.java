@@ -417,7 +417,10 @@ public class AppointmentServiceImpl extends BaseOpenmrsService implements Appoin
 	@Override
 	@Transactional
 	public Appointment voidAppointment(Appointment appointment, String reason) {
-		return saveAppointment(appointment);
+		ValidateUtil.validate(appointment);
+		Appointment saved = (Appointment) getAppointmentDAO().saveOrUpdate(appointment);
+		writeAuditLog("CANCEL", saved.getUuid(), "SUCCESS");
+		return saved;
 	}
 
 	@Override
