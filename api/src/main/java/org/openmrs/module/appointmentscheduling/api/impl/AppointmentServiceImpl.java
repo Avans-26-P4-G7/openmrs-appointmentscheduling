@@ -397,8 +397,13 @@ public class AppointmentServiceImpl extends BaseOpenmrsService implements Appoin
 	@Transactional
 	public Appointment saveAppointment(Appointment appointment)
 			throws APIException {
+		boolean isNew = appointment.getId() == null;
 		ValidateUtil.validate(appointment);
-		return (Appointment) getAppointmentDAO().saveOrUpdate(appointment);
+		Appointment saved = (Appointment) getAppointmentDAO().saveOrUpdate(appointment);
+
+		writeAuditLog(isNew ? "CREATE" : "UPDATE", saved.getUuid(), "SUCCESS");
+
+		return saved;
 	}
 
 	@Override
