@@ -384,13 +384,21 @@ public class AppointmentServiceImpl extends BaseOpenmrsService implements Appoin
 	@Override
 	@Transactional(readOnly = true)
 	public Appointment getAppointment(Integer appointmentId) {
-		return (Appointment) getAppointmentDAO().getById(appointmentId);
+		Appointment appointment = (Appointment) getAppointmentDAO().getById(appointmentId);
+		if (appointment != null) {
+			writeAuditLog("READ", appointment.getUuid(), "SUCCESS");
+		}
+		return appointment;
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public Appointment getAppointmentByUuid(String uuid) {
-		return (Appointment) getAppointmentDAO().getByUuid(uuid);
+		Appointment appointment = (Appointment) getAppointmentDAO().getByUuid(uuid);
+		if (appointment != null) {
+			writeAuditLog("READ", appointment.getUuid(), "SUCCESS");
+		}
+		return appointment;
 	}
 
 	@Override
