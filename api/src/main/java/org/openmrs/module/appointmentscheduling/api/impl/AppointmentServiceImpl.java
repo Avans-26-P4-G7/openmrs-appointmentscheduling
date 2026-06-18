@@ -416,8 +416,21 @@ public class AppointmentServiceImpl extends BaseOpenmrsService implements Appoin
 	@Override
 	@Transactional
 	public void purgeAppointment(Appointment appointment) {
+		String uuid = appointment.getUuid();
 		getAppointmentStatusHistoryDAO().purgeHistoryBy(appointment);
 		getAppointmentDAO().delete(appointment);
+		writeAuditLog("DELETE", uuid, "SUCCESS");
+	}
+
+	/**
+	 * Writes a NEN-7510 8.15 compliant audit log entry: User-ID, ISO-8601
+	 * timestamp, event type, outcome and resource UUID. Never include BSNs or
+	 * other medical/PII content here.
+	 */
+	private void writeAuditLog(String eventType, String resourceUuid, String outcome) {
+		log.info(eventType + " User-ID=" + Context.getAuthenticatedUser().getUserId()
+				+ " Timestamp=" + new DateTime().toString()
+				+ " Outcome=" + outcome + " Resource-UUID=" + resourceUuid);
 	}
 
 	@Override
