@@ -39,6 +39,22 @@
 				<filtering>true</filtering>
 			</testResource>
 		</testResources>
+
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<configuration>
+						<!-- print each test class's pass/fail result straight to the
+						     console instead of only writing it to a report file -->
+						<useFile>false</useFile>
+						<printSummary>true</printSummary>
+						<reportFormat>plain</reportFormat>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 	</build>
 
 </project>
