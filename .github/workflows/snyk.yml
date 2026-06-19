@@ -39,10 +39,12 @@ jobs:
         continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
         with:
           args: >
             --all-projects
             --severity-threshold=high
+            --exclude=target
             --json-file-output=snyk-results.json
 
       - name: Upload Snyk rapport
