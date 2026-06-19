@@ -34,17 +34,19 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
 
-      - name: Build with Maven
-        run: mvn clean package -B -DskipTests
+      # Volledige build + alle tests + JaCoCo report + jacoco:check.
+      # 'verify' draait de testfase (coverage wordt gemeten en gerapporteerd)
+      # en de verify-fase (jacoco:check laat de build falen bij < 60% line coverage).
+      - name: Build, test & coverage (mvn verify)
+        run: mvn clean verify -B -pl api -am
 
-      - name: logging tests
-        
-        run: mvn test -B -pl api -am -Dtest=AppointmentLoggingTest
-        continue-on-error: true
-
-      - name: HQL injection tests
-        run: mvn test -B -pl api -am -Dtest=HibernateAppointmentDAOHQLInjectionTest
-        continue-on-error: true
+      # Coverage-rapport bewaren als downloadbaar bewijs (HTML/XML/CSV).
+      - name: Upload JaCoCo coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report-jacoco
+          path: api/target/site/jacoco/
 
   codeql:
     name: CodeQL Security Scan
