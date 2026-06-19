@@ -37,6 +37,15 @@ jobs:
       - name: Build with Maven
         run: mvn clean package -B -DskipTests
 
+      - name: logging tests
+        
+        run: mvn test -B -pl api -am -Dtest=AppointmentLoggingTest
+        continue-on-error: true
+
+      - name: HQL injection tests
+        run: mvn test -B -pl api -am -Dtest=HibernateAppointmentDAOHQLInjectionTest
+        continue-on-error: true
+
   codeql:
     name: CodeQL Security Scan
     runs-on: ubuntu-latest

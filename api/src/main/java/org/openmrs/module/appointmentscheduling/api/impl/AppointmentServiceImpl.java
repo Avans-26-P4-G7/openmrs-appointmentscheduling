@@ -384,27 +384,43 @@ public class AppointmentServiceImpl extends BaseOpenmrsService implements Appoin
 	@Override
 	@Transactional(readOnly = true)
 	public Appointment getAppointment(Integer appointmentId) {
-		return (Appointment) getAppointmentDAO().getById(appointmentId);
+		Appointment appointment = (Appointment) getAppointmentDAO().getById(appointmentId);
+		if (appointment != null) {
+			writeAuditLog("READ", appointment.getUuid(), "SUCCESS");
+		}
+		return appointment;
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public Appointment getAppointmentByUuid(String uuid) {
-		return (Appointment) getAppointmentDAO().getByUuid(uuid);
+		Appointment appointment = (Appointment) getAppointmentDAO().getByUuid(uuid);
+		if (appointment != null) {
+			writeAuditLog("READ", appointment.getUuid(), "SUCCESS");
+		}
+		return appointment;
 	}
 
 	@Override
 	@Transactional
 	public Appointment saveAppointment(Appointment appointment)
 			throws APIException {
+		boolean isNew = appointment.getId() == null;
 		ValidateUtil.validate(appointment);
-		return (Appointment) getAppointmentDAO().saveOrUpdate(appointment);
+		Appointment saved = (Appointment) getAppointmentDAO().saveOrUpdate(appointment);
+
+		writeAuditLog(isNew ? "CREATE" : "UPDATE", saved.getUuid(), "SUCCESS");
+
+		return saved;
 	}
 
 	@Override
 	@Transactional
 	public Appointment voidAppointment(Appointment appointment, String reason) {
-		return saveAppointment(appointment);
+		String uuid = appointment.getUuid();
+		Appointment voided = saveAppointment(appointment);
+		writeAuditLog("CANCEL", uuid, "SUCCESS");
+		return voided;
 	}
 
 	@Override
@@ -416,8 +432,21 @@ public class AppointmentServiceImpl extends BaseOpenmrsService implements Appoin
 	@Override
 	@Transactional
 	public void purgeAppointment(Appointment appointment) {
+		String uuid = appointment.getUuid();
 		getAppointmentStatusHistoryDAO().purgeHistoryBy(appointment);
 		getAppointmentDAO().delete(appointment);
+		writeAuditLog("DELETE", uuid, "SUCCESS");
+	}
+
+	/**
+	 * Writes a NEN-7510 8.15 compliant audit log entry: User-ID, ISO-8601
+	 * timestamp, event type, outcome and resource UUID. Never include BSNs or
+	 * other medical/PII content here.
+	 */
+	private void writeAuditLog(String eventType, String resourceUuid, String outcome) {
+		log.info(eventType + " User-ID=" + Context.getAuthenticatedUser().getUserId()
+				+ " Timestamp=" + new DateTime().toString()
+				+ " Outcome=" + outcome + " Resource-UUID=" + resourceUuid);
 	}
 
 	@Override
