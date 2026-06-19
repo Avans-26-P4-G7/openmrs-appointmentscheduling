@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   snyk:
-    name: Snyk SCA
+    name: Snyk SCA + SAST
     runs-on: ubuntu-latest
 
     steps:
@@ -37,8 +37,7 @@ jobs:
       - name: Install Snyk CLI
         run: npm install -g snyk
 
-      # Draait op de runner zelf -> gebruikt de Java 8 van setup-java.
-      # Geen Docker-container, dus geen JAVA_HOME-probleem.
+      # SCA - dependencies op CVE's
       - name: Snyk SCA - dependency scan
         continue-on-error: true
         env:
@@ -50,10 +49,22 @@ jobs:
           --exclude=target
           --json-file-output=snyk-results.json
 
-      - name: Upload Snyk rapport
+      # SAST - broncode op CWE's (vereist Snyk Code aan in de org)
+      - name: Snyk SAST - code scan
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: >
+          snyk code test
+          --severity-threshold=high
+          --json-file-output=snyk-code-results.json
+
+      - name: Upload Snyk rapporten
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: snyk-rapporten
-          path: snyk-results.json
+          path: |
+            snyk-results.json
+            snyk-code-results.json
           if-no-files-found: warn
