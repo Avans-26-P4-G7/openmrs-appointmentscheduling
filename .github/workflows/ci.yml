@@ -75,7 +75,7 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
 
       - name: Build and test
-        run: mvn clean verify -B
+        run: mvn clean verify -B -fae
         continue-on-error: true
 
       - name: Set up Java 21
@@ -88,7 +88,7 @@ jobs:
         if: always()
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn sonar:sonar -B -Dsonar.host.url=https://sonarcloud.io -Dsonar.projectKey=Avans-26-P4-G7_openmrs-appointmentscheduling -Dsonar.organization=avans-26-p4-g7
+        run: mvn sonar:sonar -B -Dsonar.host.url=https://sonarcloud.io -Dsonar.projectKey=Avans-26-P4-G7_openmrs-appointmentscheduling -Dsonar.organization=avans-26-p4-g7 -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
 
   codeql:
     name: CodeQL Security Scan
