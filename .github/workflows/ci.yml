@@ -88,7 +88,7 @@ jobs:
         if: always()
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn sonar:sonar -B -Dsonar.projectKey=Avans-26-P4-G7_openmrs-appointmentscheduling -Dsonar.organization=avans-26-p4-g7
+        run: mvn sonar:sonar -B -Dsonar.host.url=https://sonarcloud.io -Dsonar.projectKey=Avans-26-P4-G7_openmrs-appointmentscheduling -Dsonar.organization=avans-26-p4-g7
 
   codeql:
     name: CodeQL Security Scan
