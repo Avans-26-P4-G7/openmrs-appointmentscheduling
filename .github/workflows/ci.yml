@@ -78,7 +78,7 @@ jobs:
         run: mvn clean package -B -DskipTests
 
       - name: Run API tests and generate coverage report
-        run: mvn verify -B -pl api
+        run: mvn verify -B -pl api -am
         continue-on-error: true
 
       - name: Set up Java 21
@@ -90,7 +90,7 @@ jobs:
       - name: SonarCloud analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn sonar:sonar -B -Dsonar.host.url=https://sonarcloud.io -Dsonar.projectKey=Avans-26-P4-G7_openmrs-appointmentscheduling -Dsonar.organization=avans-26-p4-g7 -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+        run: mvn sonar:sonar -B -Dsonar.host.url=https://sonarcloud.io -Dsonar.projectKey=Avans-26-P4-G7_openmrs-appointmentscheduling -Dsonar.organization=avans-26-p4-g7 -Dsonar.coverage.jacoco.xmlReportPaths=api/target/site/jacoco/jacoco.xml
 
   codeql:
     name: CodeQL Security Scan
