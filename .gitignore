@@ -68,6 +68,9 @@ nb-configuration.xml
 ################
 
 
+### Environment variables ###
+.env
+
 ### Project specific files ###
 api/.classpath
 api/.project
