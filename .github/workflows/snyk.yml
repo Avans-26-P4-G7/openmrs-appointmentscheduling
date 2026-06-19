@@ -1,0 +1,73 @@
+name: Snyk Security Scan
+
+on:
+  push:
+    branches: [ development, test, production ]
+  pull_request:
+    branches: [ development, test, production ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  snyk:
+    name: Snyk SCA + SAST
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Java 8
+        uses: actions/setup-java@v4
+        with:
+          java-version: '8'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Set up Maven 3.6.3
+        uses: stCarolas/setup-maven@v5
+        with:
+          maven-version: 3.6.3
+
+      # SCA — scant alle Maven dependencies (api/ + omod/) op bekende CVE's.
+      # --all-projects   -> beide modules
+      # --severity-threshold=high -> alleen HIGH en CRITICAL in de output
+      # continue-on-error -> de scan mag bevindingen vinden zonder de hele build te breken;
+      #                      het rapport (artifact) blijft zo altijd beschikbaar.
+      - name: Snyk SCA - dependency scan
+        uses: snyk/actions/maven@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: >
+            --all-projects
+            --severity-threshold=high
+            --json-file-output=snyk-results.json
+
+      # SAST — scant de broncode op CWE's (SQL-injectie, hardcoded secrets, enz.)
+      - name: Snyk SAST - code scan
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          command: code test
+          args: >
+            --severity-threshold=high
+            --json-file-output=snyk-code-results.json
+
+      # Beide rapporten als CI-artifact, downloadbaar via Actions -> Snyk Security Scan.
+      - name: Upload Snyk rapporten
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: snyk-rapporten
+          path: |
+            snyk-results.json
+            snyk-code-results.json
+          if-no-files-found: warn
