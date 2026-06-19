@@ -28,6 +28,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 public class HibernateAppointmentStatusHistoryDAO extends HibernateSingleClassDAO implements AppointmentStatusHistoryDAO {
 	
+	private static final String STATUS = "status";
+	
+	private static final String APPOINTMENT = "appointment";
+	
 	public HibernateAppointmentStatusHistoryDAO() {
 		super(AppointmentStatusHistory.class);
 	}
@@ -36,8 +40,8 @@ public class HibernateAppointmentStatusHistoryDAO extends HibernateSingleClassDA
 	@Transactional(readOnly = true)
 	public List<AppointmentStatusHistory> getAll(AppointmentStatus status) {
 		Criteria criteria = sessionFactory.getCurrentSession().createCriteria(mappedClass);
-		criteria.add(Restrictions.eq("status", status));
-		criteria.addOrder(Order.asc("status"));
+		criteria.add(Restrictions.eq(STATUS, status));
+		criteria.addOrder(Order.asc(STATUS));
 		return criteria.list();
 	}
 	
@@ -46,7 +50,7 @@ public class HibernateAppointmentStatusHistoryDAO extends HibernateSingleClassDA
 	public Date getStartDateOfCurrentStatus(Appointment appointment) {
 		String query = "Select Max(endDate) from AppointmentStatusHistory where appointment=:appointment";
 		Date endDate = (Date) super.sessionFactory.getCurrentSession().createQuery(query)
-		        .setParameter("appointment", appointment).uniqueResult();
+		        .setParameter(APPOINTMENT, appointment).uniqueResult();
 		endDate = (endDate == null && appointment != null) ? appointment.getDateCreated() : endDate;
 		
 		return endDate;
@@ -62,7 +66,7 @@ public class HibernateAppointmentStatusHistoryDAO extends HibernateSingleClassDA
 		String stringQuery = "Select history from AppointmentStatusHistory AS history WHERE history.startDate >= :fromDate AND history.endDate <= :endDate AND history.status = :status";
 		Query query = super.sessionFactory.getCurrentSession().createQuery(stringQuery);
 		
-		query.setParameter("fromDate", fromDate).setParameter("endDate", endDate).setParameter("status", status);
+		query.setParameter("fromDate", fromDate).setParameter("endDate", endDate).setParameter(STATUS, status);
 		
 		histories = query.list();
 		
@@ -74,14 +78,14 @@ public class HibernateAppointmentStatusHistoryDAO extends HibernateSingleClassDA
 	public void purgeHistoryBy(Appointment appointment) {
 		String hql = "delete from AppointmentStatusHistory where appointment= :appointment";
 		Query query = super.sessionFactory.getCurrentSession().createQuery(hql);
-		query.setParameter("appointment", appointment).executeUpdate();
+		query.setParameter(APPOINTMENT, appointment).executeUpdate();
 	}
 
 	@Override
 	public List<AppointmentStatusHistory> getAppointmentStatusHistories(Appointment appointment) {
 		String query = "Select appointmentHistory from AppointmentStatusHistory AS appointmentHistory where appointmentHistory.appointment=:appointment";
 		return  (List<AppointmentStatusHistory>) super.sessionFactory.getCurrentSession().createQuery(query)
-				.setParameter("appointment", appointment).list();
+				.setParameter(APPOINTMENT, appointment).list();
 
 	}
 
@@ -91,7 +95,7 @@ public class HibernateAppointmentStatusHistoryDAO extends HibernateSingleClassDA
 		String stringQuery = "Select history from AppointmentStatusHistory AS history  " +
 				"WHERE history.startDate = (select max(statusHistory.startDate) from AppointmentStatusHistory AS statusHistory " +
 				"WHERE statusHistory.appointment = :appointment)";
-		Query query = super.sessionFactory.getCurrentSession().createQuery(stringQuery).setParameter("appointment", appointment);
+		Query query = super.sessionFactory.getCurrentSession().createQuery(stringQuery).setParameter(APPOINTMENT, appointment);
 		return (AppointmentStatusHistory) query.uniqueResult();
 	}
 
