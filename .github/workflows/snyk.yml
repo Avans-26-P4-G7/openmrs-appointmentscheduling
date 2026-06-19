@@ -1,0 +1,70 @@
+name: Snyk Security Scan
+
+on:
+  push:
+    branches: [ development, test, production ]
+  pull_request:
+    branches: [ development, test, production ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  snyk:
+    name: Snyk SCA + SAST
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Java 8
+        uses: actions/setup-java@v4
+        with:
+          java-version: '8'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Set up Maven 3.6.3
+        uses: stCarolas/setup-maven@v5
+        with:
+          maven-version: 3.6.3
+
+      - name: Build (api-jar nodig voor omod)
+        run: mvn clean install -B -DskipTests
+
+      - name: Install Snyk CLI
+        run: npm install -g snyk
+
+      # SCA - dependencies op CVE's
+      - name: Snyk SCA - dependency scan
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: >
+          snyk test
+          --all-projects
+          --severity-threshold=high
+          --exclude=target
+          --json-file-output=snyk-results.json
+
+      # SAST - broncode op CWE's (vereist Snyk Code aan in de org)
+      - name: Snyk SAST - code scan
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: >
+          snyk code test
+          --severity-threshold=high
+          --json-file-output=snyk-code-results.json
+
+      - name: Upload Snyk rapporten
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: snyk-rapporten
+          path: |
+            snyk-results.json
+            snyk-code-results.json
+          if-no-files-found: warn
