@@ -61,7 +61,7 @@
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.12</version>
+				<version>0.8.15</version>
 				<executions>
 					<!-- 1. hangt de JaCoCo-agent aan de test-JVM zodat coverage gemeten wordt -->
 					<execution>
