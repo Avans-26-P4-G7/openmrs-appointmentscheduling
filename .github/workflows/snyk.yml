@@ -60,7 +60,7 @@ jobs:
           --json-file-output=snyk-code-results.json
 
       - name: Upload Snyk rapporten
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: snyk-rapporten
